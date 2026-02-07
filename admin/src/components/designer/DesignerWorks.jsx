@@ -59,7 +59,6 @@ const DesignerWorks = () => {
   }
 
   const { designer, portfolioWorks, projectHistory } = data;
-
   return (
     <>
       <Sidebar />
@@ -69,8 +68,28 @@ const DesignerWorks = () => {
             DESIGNER HEADER
         ====================== */}
         <div className="designer-header">
-          <h1>{designer.fullname}</h1>
-          <p>{designer.email}</p>
+          <div className="header-flex">
+            {/* Profile Image Section */}
+            <div className="profile-image-container">
+              {designer.profileImage ? (
+                <a href={designer.profileImage} target="_blank" rel="noreferrer">
+                  <img
+                    src={designer.profileImage}
+                    alt={designer.fullname}
+                    className="designer-avatar-large"
+                    title="Click to view full size"
+                  />
+                </a>
+              ) : (
+                <div className="avatar-placeholder">{designer.fullname?.charAt(0)}</div>
+              )}
+            </div>
+
+            <div className="header-text">
+              <h1>{designer.fullname}</h1>
+              <p className="designer-email">{designer.email}</p>
+            </div>
+          </div>
         </div>
 
         {/* ======================
@@ -94,7 +113,11 @@ const DesignerWorks = () => {
             <div className="works-grid">
               {portfolioWorks.map((work) => (
                 <div key={work.id} className="work-card">
-                  <img src={work.image} alt="Designer work" />
+                  {/* Wrap the image in an anchor tag */}
+                  <a href={work.image} target="_blank" rel="noreferrer" className="work-image-link">
+                    <img src={work.image} alt="Designer work" title="Click to view full size" />
+                  </a>
+
                   <p className="work-desc">
                     {work.description || "No description"}
                   </p>

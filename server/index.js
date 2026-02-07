@@ -270,9 +270,9 @@ app.patch("/admin/designers/:id/verify", async (req, res) => {
       });
     }
 
-    res.json({ 
-      success: true, 
-      isVerified: updatedDesigner.isVerified 
+    res.json({
+      success: true,
+      isVerified: updatedDesigner.isVerified
     });
   } catch (err) {
     console.error("❌ DESIGNER VERIFY ERROR:", err);
@@ -328,7 +328,12 @@ app.get("/admin/designers/:id/work-history", async (req, res) => {
     const designer = await prisma.designer.findUnique({
       where: { id: designerId },
       include: {
-        profile: true,
+        profile: {
+          select: {
+            experience: true,
+            profileImage: true, // <--- Ensure this is selected
+          }
+        },
       },
     });
 
@@ -375,6 +380,7 @@ app.get("/admin/designers/:id/work-history", async (req, res) => {
         location: designer.location || "-",
         experience: designer.profile?.experience || "-",
         availability: designer.availability || "UNAVAILABLE",
+        profileImage: designer.profile?.profileImage || null,
       },
       portfolioWorks,
       projectHistory,
@@ -447,7 +453,7 @@ app.get("/admin/sellers/:id", async (req, res) => {
       include: {
         business: true,
         delivery: true,
-        bank: true, 
+        bank: true,
       },
     });
 
@@ -459,7 +465,7 @@ app.get("/admin/sellers/:id", async (req, res) => {
       id: seller.id,
       // Updated logic
       status: seller.isVerified ? "VERIFIED" : "PENDING",
-      isVerified: seller.isVerified, 
+      isVerified: seller.isVerified,
 
       seller: {
         name: seller.name,
@@ -470,11 +476,55 @@ app.get("/admin/sellers/:id", async (req, res) => {
 
       business: seller.business,
       delivery: seller.delivery,
-      bank: seller.bank, 
+      bank: seller.bank,
     });
   } catch (err) {
     console.error("FETCH SELLER DETAILS ERROR:", err);
     res.status(500).json({ error: "Failed to fetch seller details" });
+  }
+});
+
+// GET SELLER PRODUCTS (ADMIN)
+app.get("/admin/sellers/:id/products", async (req, res) => {
+  try {
+    const sellerId = Number(req.params.id);
+    if (isNaN(sellerId)) {
+      return res.status(400).json({ error: "Invalid seller ID" });
+    }
+
+    const products = await prisma.product.findMany({
+      where: { sellerId: sellerId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.json(products);
+  } catch (err) {
+    console.error("FETCH SELLER PRODUCTS ERROR:", err);
+    res.status(500).json({ error: "Failed to fetch products for this seller" });
+  }
+});
+
+// admin/products/:id (PATCH)
+app.patch("/admin/products/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { name, category, productType, price, availability } = req.body;
+
+    const updated = await prisma.product.update({
+      where: { id },
+      data: {
+        name,
+        category,
+        productType,
+        price: parseFloat(price),
+        availability
+      },
+    });
+
+    res.json({ success: true, updated });
+  } catch (err) {
+    console.error("UPDATE PRODUCT ERROR:", err);
+    res.status(500).json({ error: "Failed to update product" });
   }
 });
 
@@ -526,9 +576,9 @@ app.patch("/admin/sellers/:id/verify", async (req, res) => {
       });
     }
 
-    res.json({ 
-      success: true, 
-      status: updatedSeller.isVerified ? "VERIFIED" : "PENDING" 
+    res.json({
+      success: true,
+      status: updatedSeller.isVerified ? "VERIFIED" : "PENDING"
     });
   } catch (err) {
     console.error("❌ VERIFY ERROR:", err);
@@ -540,22 +590,28 @@ app.patch("/admin/sellers/:id/verify", async (req, res) => {
    ORDERS
 ====================== */
 app.get("/admin/orders", async (req, res) => {
-  const orders = await prisma.order.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: {
-          name: true,
-          phone: true,
+  try {
+    const orders = await prisma.order.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: { name: true, phone: true, email: true },
+        },
+        items: {
+          include: { 
+            seller: {
+              select: { name: true, phone: true } // Get seller contact info
+            } 
+          },
         },
       },
-      items: {
-        include: { seller: true },
-      },
-    },
-  });
+    });
 
-  res.json(orders);
+    res.json(orders);
+  } catch (err) {
+    console.error("FETCH ORDERS ERROR:", err);
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
 });
 
 /* ======================

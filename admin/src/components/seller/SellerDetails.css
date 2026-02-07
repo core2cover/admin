@@ -254,3 +254,271 @@
     padding-top: 50px;
   }
 }
+
+.admin-product-list {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-top: 15px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 2px solid #eee;
+  color: #666;
+}
+
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.badge.available {
+  color: green;
+  font-weight: bold;
+}
+
+.badge.out_of_stock {
+  color: red;
+  font-weight: bold;
+}
+
+/* ================================
+   SELLER PRODUCTS SECTION
+================================ */
+
+.seller-products-section {
+  margin-top: 40px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.seller-products-section h2 {
+  font-size: 20px;
+  color: #1f2937;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ================================
+   ADMIN TABLE & INLINE EDITING
+================================ */
+
+.admin-product-list {
+  background: #ffffff;
+  padding: 0;
+  /* Removing padding to let table be full width */
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  background: #f8fafc;
+  padding: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.admin-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  font-size: 14px;
+  color: #334155;
+}
+
+/* Form Inputs inside Table Cells */
+.admin-table td input,
+.admin-table td select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-table td input:focus,
+.admin-table td select:focus {
+  border-color: #4e5a44;
+  /* Your brand green */
+  box-shadow: 0 0 0 2px rgba(78, 90, 68, 0.1);
+}
+
+/* Product Images in Table */
+.admin-table img {
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s;
+}
+
+.admin-table img:hover {
+  transform: scale(1.1);
+}
+
+/* ================================
+   ACTION BUTTONS (EDIT/SAVE)
+================================ */
+
+.btn-edit,
+.btn-save {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-edit {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-edit:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.btn-save {
+  background: #4e5a44;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(78, 90, 68, 0.2);
+}
+
+.btn-save:hover {
+  background: #3d4735;
+}
+
+/* Availability Badges */
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.badge.available {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge.out_of_stock {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Image Stack Effect in Table */
+.admin-image-stack {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+}
+
+.image-count {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: #4e5a44;
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: bold;
+  border: 1px solid white;
+}
+
+/* Modal Overlay */
+.admin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.admin-modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 30px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Gallery Grid */
+.admin-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  transition: transform 0.2s;
+}
+
+.gallery-item img:hover {
+  transform: scale(1.05);
+  border-color: #4e5a44;
+}

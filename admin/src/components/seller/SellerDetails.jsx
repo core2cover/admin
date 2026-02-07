@@ -10,22 +10,29 @@ const SellerDetails = () => {
   const [seller, setSeller] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [editData, setEditData] = useState({});
+  const [selectedGallery, setSelectedGallery] = useState(null); // Stores [img1, img2...]
+  const [showModal, setShowModal] = useState(false);
 
   // Helper to fetch/refresh details
   const fetchDetails = () => {
     if (!sellerId) return;
     setLoading(true);
-    fetch(`http://localhost:5000/admin/sellers/${sellerId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Seller not found");
-        return res.json();
-      })
-      .then((data) => {
-        setSeller(data);
+
+    // Fetch both Seller Info and Seller Products
+    Promise.all([
+      fetch(`http://localhost:5000/admin/sellers/${sellerId}`).then(res => res.json()),
+      fetch(`http://localhost:5000/admin/sellers/${sellerId}/products`).then(res => res.json())
+    ])
+      .then(([sellerData, productData]) => {
+        setSeller(sellerData);
+        setProducts(Array.isArray(productData) ? productData : []);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Fetch seller error:", err);
+        console.error("Fetch error:", err);
         setLoading(false);
       });
   };
@@ -33,6 +40,24 @@ const SellerDetails = () => {
   useEffect(() => {
     fetchDetails();
   }, [sellerId]);
+
+  const handleProductUpdate = (id) => {
+    setUpdating(true);
+    fetch(`http://localhost:5000/admin/products/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editData),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setEditingId(null);
+          fetchDetails(); // Refresh list
+        }
+      })
+      .catch((err) => alert("Update failed"))
+      .finally(() => setUpdating(false));
+  };
 
   // Handler to toggle verification status
   const handleVerify = () => {
@@ -143,6 +168,106 @@ const SellerDetails = () => {
             ) : <p className="muted">Delivery details not provided</p>}
           </section>
         </div>
+
+        <div className="seller-products-section" style={{ marginTop: '40px' }}>
+          <h2>Products Listed ({products.length})</h2>
+          {products.length > 0 ? (
+            <div className="admin-product-list">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((p) => (
+                    <tr key={p.id}>
+                      <td>
+                        <div className="admin-image-stack" onClick={() => {
+                          setSelectedGallery(p.images);
+                          setShowModal(true);
+                        }}>
+                          <img
+                            src={p.images?.[0] || "/placeholder.jpg"}
+                            alt="p"
+                            style={{ width: '40px', height: '40px', objectFit: 'cover', cursor: 'pointer', borderRadius: '4px' }}
+                          />
+                          {p.images?.length > 1 && (
+                            <span className="image-count">+{p.images.length - 1}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        {editingId === p.id ? (
+                          <input
+                            type="text"
+                            value={editData.name}
+                            onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                          />
+                        ) : p.name}
+                      </td>
+                      <td>
+                        {editingId === p.id ? (
+                          <select
+                            value={editData.category}
+                            onChange={(e) => setEditData({ ...editData, category: e.target.value })}
+                          >
+                            <option value="Furniture">Furniture</option>
+                            <option value="Plywood & Boards">Plywood & Boards</option>
+                            {/* Add other categories as needed */}
+                          </select>
+                        ) : p.category}
+                      </td>
+                      <td>
+                        {editingId === p.id ? (
+                          <input
+                            type="number"
+                            value={editData.price}
+                            onChange={(e) => setEditData({ ...editData, price: e.target.value })}
+                          />
+                        ) : `₹${p.price}`}
+                      </td>
+                      <td>
+                        {editingId === p.id ? (
+                          <button className="btn-save" onClick={() => handleProductUpdate(p.id)}>Save</button>
+                        ) : (
+                          <button className="btn-edit" onClick={() => {
+                            setEditingId(p.id);
+                            setEditData({ name: p.name, category: p.category, price: p.price, productType: p.productType });
+                          }}>Edit</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="muted">This seller hasn't listed any products yet.</p>
+          )}
+        </div>
+
+        {showModal && (
+          <div className="admin-modal-overlay" onClick={() => setShowModal(false)}>
+            <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setShowModal(false)}>&times;</button>
+              <h2>Product Gallery</h2>
+              <div className="admin-gallery-grid">
+                {selectedGallery?.map((img, idx) => (
+                  <div key={idx} className="gallery-item">
+                    <a href={img} target="_blank" rel="noreferrer">
+                      <img src={img} alt={`product-${idx}`} />
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

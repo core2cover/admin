@@ -263,3 +263,52 @@
     min-width: 600px;
   }
 }
+
+.main-order-row {
+  background-color: #fcfcfc;
+  border-top: 2px solid #eee;
+}
+
+.order-items-row > td {
+  padding: 0 !important; /* Removes padding so the details fill the width */
+}
+
+.order-details-container {
+  padding: 15px 20px 25px 20px;
+  background: #fff;
+  border-left: 4px solid #4e5a44; /* Brand accent */
+  margin-bottom: 10px;
+}
+
+.order-metadata-bar {
+  display: flex;
+  gap: 30px;
+  background: #f8fafc;
+  padding: 12px 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border: 1px solid #e2e8f0;
+}
+
+.item-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.item-img {
+  width: 45px;
+  height: 45px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+}
+
+.shipping-info {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.seller-phone {
+  color: #94a3b8;
+}

@@ -77,48 +77,71 @@ const Orders = () => {
             <tbody>
               {filteredOrders.map((order) => (
                 <React.Fragment key={order.id}>
-                  {/* Order Row */}
-                  <tr>
-                    <td>#ORD-{order.id}</td>
+                  {/* 1. Main Order Header Row */}
+                  <tr className="main-order-row">
+                    <td><strong>#ORD-{order.id}</strong></td>
                     <td>{order.customerName}</td>
                     <td>{order.user?.phone || "-"}</td>
-                    <td>₹{order.grandTotal}</td>
-                    <td>
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </td>
+                    <td>₹{order.grandTotal.toLocaleString()}</td>
+                    <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                   </tr>
 
-                  {/* Items */}
+                  {/* 2. Expanded Details Row */}
                   <tr className="order-items-row">
-                    <td colSpan="4">
-                      <table className="items-table">
-                        <thead>
-                          <tr>
-                            <th>Product</th>
-                            <th>Seller</th>
-                            <th>Qty</th>
-                            <th>Price</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {order.items.map((item) => (
-                            <tr key={item.id}>
-                              <td>{item.materialName}</td>
-                              <td>{item.seller?.name || "-"}</td>
-                              <td>{item.quantity}</td>
-                              <td>₹{item.pricePerUnit}</td>
-                              <td>₹{item.totalAmount}</td>
-                              <td>
-                                <span className="badge success">
-                                  {item.status}
-                                </span>
-                              </td>
+                    <td colSpan="5">
+                      <div className="order-details-container">
+                        {/* Metadata Bar */}
+                        <div className="order-metadata-bar">
+                          <span><strong>Payment:</strong> {order.paymentMethod?.toUpperCase()}</span>
+                          <span><strong>Address:</strong> {order.address}</span>
+                          {order.razorpayPaymentId && (
+                            <span><strong>Transaction ID:</strong> {order.razorpayPaymentId}</span>
+                          )}
+                        </div>
+
+                        {/* Items Table */}
+                        <table className="items-table">
+                          <thead>
+                            <tr>
+                              <th>Product</th>
+                              <th>Seller</th>
+                              <th>Qty</th>
+                              <th>Price Details</th>
+                              <th>Subtotal</th>
+                              <th>Status</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {order.items.map((item) => (
+                              <tr key={item.id}>
+                                <td>
+                                  <div className="item-info">
+                                    <img src={item.imageUrl || "/placeholder.jpg"} alt="p" className="item-img" />
+                                    <span>{item.materialName}</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  {item.seller?.name || "Unknown Seller"}<br />
+                                  <small className="seller-phone">{item.seller?.phone || "No Phone"}</small>
+                                </td>
+                                <td>{item.quantity} {item.unit}</td>
+                                <td>
+                                  <div>₹{item.pricePerUnit}</div>
+                                  <small className="shipping-info">
+                                    Shipping: {item.shippingChargeType === "Free" ? "FREE" : `₹${item.shippingCharge}`}
+                                  </small>
+                                </td>
+                                <td>₹{item.totalAmount}</td>
+                                <td>
+                                  <span className={`badge ${item.status === 'fulfilled' ? 'success' : 'pending'}`}>
+                                    {item.status}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </td>
                   </tr>
                 </React.Fragment>

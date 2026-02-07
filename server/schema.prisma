@@ -148,19 +148,22 @@ model Product {
 /// ORDER (CUSTOMER LEVEL)
 /// =========================
 model Order {
-  id             Int         @id @default(autoincrement())
-  userId         Int
-  customerEmail  String
-  customerName   String
-  address        String
-  paymentMethod  String
-  subtotal       Float
-  casaCharge     Float
-  deliveryCharge Float
-  grandTotal     Float
-  createdAt      DateTime    @default(now())
-  user           User        @relation(fields: [userId], references: [id])
-  items          OrderItem[]
+  id                 Int         @id @default(autoincrement())
+  userId             Int
+  customerEmail      String
+  customerName       String
+  address            String
+  paymentMethod      String
+  subtotal           Float
+  casaCharge         Float
+  deliveryCharge     Float
+  grandTotal         Float
+  createdAt          DateTime    @default(now())
+  razorpayOrderId    String?     @unique
+  razorpayPaymentId  String?     @unique
+  installationCharge Float?
+  user               User        @relation(fields: [userId], references: [id])
+  items              OrderItem[]
 }
 
 /// =========================
