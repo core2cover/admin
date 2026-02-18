@@ -391,6 +391,24 @@ app.get("/admin/designers/:id/work-history", async (req, res) => {
   }
 });
 
+// DELETE DESIGNER
+app.delete("/admin/designers/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Delete related records first if cascade delete is not set in Prisma
+    // For example: await prisma.portfolio.deleteMany({ where: { designerId: id } });
+
+    await prisma.designer.delete({
+      where: { id: parseInt(id) },
+    });
+
+    res.json({ success: true, message: "Designer deleted successfully" });
+  } catch (err) {
+    console.error("DELETE DESIGNER ERROR:", err);
+    res.status(500).json({ success: false, error: "Failed to delete designer" });
+  }
+});
+
 /* ======================
    CREATE / UPDATE UPI
 ====================== */
@@ -611,6 +629,26 @@ app.get("/admin/orders", async (req, res) => {
   } catch (err) {
     console.error("FETCH ORDERS ERROR:", err);
     res.status(500).json({ error: "Failed to fetch orders" });
+  }
+});
+
+app.delete("/admin/orders/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Delete order items first (if not handled by cascade delete in schema)
+    await prisma.orderItem.deleteMany({
+      where: { orderId: parseInt(id) },
+    });
+
+    // Delete the main order
+    await prisma.order.delete({
+      where: { id: parseInt(id) },
+    });
+
+    res.json({ message: "Order deleted successfully" });
+  } catch (err) {
+    console.error("DELETE ORDER ERROR:", err);
+    res.status(500).json({ error: "Failed to delete order" });
   }
 });
 

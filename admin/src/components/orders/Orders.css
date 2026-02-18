@@ -312,3 +312,23 @@
 .seller-phone {
   color: #94a3b8;
 }
+
+.delete-order-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.delete-order-btn:hover {
+  background-color: #cc0000;
+}
+
+/* Ensure the table cell centers the button */
+.main-order-row td:last-child {
+  text-align: center;
+}

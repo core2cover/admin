@@ -10,6 +10,29 @@ const Designers = () => {
   const [designers, setDesigners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
+  const handleDeleteDesigner = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this designer? This action cannot be undone.")) return;
+
+    setActionLoading(id);
+    try {
+      const res = await fetch(`http://localhost:5000/admin/designers/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        // Remove the designer from the local state
+        setDesigners((prev) => prev.filter((d) => d.id !== id));
+      } else {
+        alert(data.error || "Failed to delete designer");
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("An error occurred while deleting.");
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -45,8 +68,8 @@ const Designers = () => {
           // Update local state instantly
           setDesigners((prev) =>
             prev.map((d) =>
-              d.id === id 
-                ? { ...d, isVerified: data.isVerified, status: data.isVerified ? "ACTIVE" : "PENDING" } 
+              d.id === id
+                ? { ...d, isVerified: data.isVerified, status: data.isVerified ? "ACTIVE" : "PENDING" }
                 : d
             )
           );
@@ -119,10 +142,10 @@ const Designers = () => {
                   <tr key={d.id}>
                     <td className="cell-strong">{d.fullname}</td>
                     <td>
-                        <div className="contact-info">
-                            <span>{d.email || "-"}</span>
-                            <small>{d.phone || "-"}</small>
-                        </div>
+                      <div className="contact-info">
+                        <span>{d.email || "-"}</span>
+                        <small>{d.phone || "-"}</small>
+                      </div>
                     </td>
                     <td>{d.location}</td>
                     <td>{d.experience} Yrs</td>
@@ -146,13 +169,21 @@ const Designers = () => {
                       >
                         Works
                       </button>
-                      
+
                       <button
                         className={`btn-verify-small ${d.isVerified ? 'unverify' : 'verify'}`}
                         onClick={() => handleToggleVerify(d.id, d.isVerified)}
                         disabled={actionLoading === d.id}
                       >
                         {actionLoading === d.id ? "..." : d.isVerified ? "Revoke" : "Verify"}
+                      </button>
+
+                      <button
+                        className="btn-delete-small"
+                        onClick={() => handleDeleteDesigner(d.id)}
+                        disabled={actionLoading === d.id}
+                      >
+                        {actionLoading === d.id ? "..." : "Delete"}
                       </button>
                     </td>
                   </tr>

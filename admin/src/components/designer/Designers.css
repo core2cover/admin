@@ -305,3 +305,27 @@
 .contact-info small {
     color: #666;
 }
+
+.btn-delete-small {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  margin-left: 5px;
+}
+
+.btn-delete-small:hover {
+  background-color: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+.btn-delete-small:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

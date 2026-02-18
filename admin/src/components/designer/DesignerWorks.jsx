@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
 import "./DesignerWorks.css";
+import { useNavigate } from "react-router-dom";
 
 const DesignerWorks = () => {
   const { state } = useLocation();
   const designerId = state?.designerId;
+  const navigate = useNavigate();
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (!designerId) return;
@@ -26,6 +29,54 @@ const DesignerWorks = () => {
       })
       .finally(() => setLoading(false));
   }, [designerId]);
+
+  const handleToggleVerify = (currentIsVerified) => {
+    setActionLoading(true);
+    const newVerifiedState = !currentIsVerified;
+
+    fetch(`http://localhost:5000/admin/designers/${designerId}/verify`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isVerified: newVerifiedState }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          // Update the local designer object in the 'data' state
+          setData((prev) => ({
+            ...prev,
+            designer: { ...prev.designer, isVerified: data.isVerified }
+          }));
+        }
+      })
+      .catch((err) => console.error("Update error:", err))
+      .finally(() => setActionLoading(false));
+  };
+
+  // DELETE HANDLER
+  const handleDeleteDesigner = async () => {
+    if (!window.confirm("Are you sure you want to delete this designer? This will remove all their portfolio items and projects.")) return;
+
+    setActionLoading(true);
+    try {
+      const res = await fetch(`http://localhost:5000/admin/designers/${designerId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Designer deleted successfully.");
+        navigate("/designers"); // Redirect back to list
+      } else {
+        alert(data.error || "Failed to delete");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error during deletion.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   if (!designerId) {
     return (
@@ -58,6 +109,7 @@ const DesignerWorks = () => {
     );
   }
 
+
   const { designer, portfolioWorks, projectHistory } = data;
   return (
     <>
@@ -88,6 +140,23 @@ const DesignerWorks = () => {
             <div className="header-text">
               <h1>{designer.fullname}</h1>
               <p className="designer-email">{designer.email}</p>
+              <div className="admin-actions">
+                <button
+                  className={`btn-verify-small ${designer.isVerified ? 'unverify' : 'verify'}`}
+                  onClick={() => handleToggleVerify(designer.isVerified)}
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? "..." : designer.isVerified ? "Revoke Verification" : "Verify Profile"}
+                </button>
+
+                <button
+                  className="btn-delete-small"
+                  onClick={handleDeleteDesigner}
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? "..." : "Delete Designer Account"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

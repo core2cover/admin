@@ -7,6 +7,26 @@ const Orders = () => {
   const [search, setSearch] = useState("");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const deleteOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to delete this order permanently?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/admin/orders/${orderId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        // Update local state to remove the order from the UI
+        setOrders(orders.filter((o) => o.id !== orderId));
+        alert("Order deleted successfully");
+      } else {
+        throw new Error("Failed to delete order");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting order");
+    }
+  };
 
   useEffect(() => {
     fetch("http://localhost:5000/admin/orders")
@@ -71,6 +91,7 @@ const Orders = () => {
                 <th>Phone</th>
                 <th>Total</th>
                 <th>Date</th>
+                <th>Actions</th>
               </tr>
             </thead>
 
@@ -84,6 +105,14 @@ const Orders = () => {
                     <td>{order.user?.phone || "-"}</td>
                     <td>₹{order.grandTotal.toLocaleString()}</td>
                     <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <button
+                        className="delete-order-btn"
+                        onClick={() => deleteOrder(order.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
 
                   {/* 2. Expanded Details Row */}
