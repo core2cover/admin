@@ -179,6 +179,7 @@ const SellerDetails = () => {
                     <th>Image</th>
                     <th>Name</th>
                     <th>Category</th>
+                    <th>Description</th>
                     <th>Price</th>
                     <th>Stock</th>
                   </tr>
@@ -224,6 +225,19 @@ const SellerDetails = () => {
                       </td>
                       <td>
                         {editingId === p.id ? (
+                          <textarea
+                            className="admin-edit-textarea"
+                            value={editData.description}
+                            onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                          />
+                        ) : (
+                          <div className="admin-description-cell" title={p.description}>
+                            {p.description ? (p.description.substring(0, 30) + (p.description.length > 30 ? "..." : "")) : "-"}
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        {editingId === p.id ? (
                           <input
                             type="number"
                             value={editData.price}
@@ -237,7 +251,7 @@ const SellerDetails = () => {
                         ) : (
                           <button className="btn-edit" onClick={() => {
                             setEditingId(p.id);
-                            setEditData({ name: p.name, category: p.category, price: p.price, productType: p.productType });
+                            setEditData({ name: p.name, category: p.category, description: p.description || "", price: p.price, productType: p.productType });
                           }}>Edit</button>
                         )}
                       </td>

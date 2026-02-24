@@ -526,13 +526,14 @@ app.get("/admin/sellers/:id/products", async (req, res) => {
 app.patch("/admin/products/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const { name, category, productType, price, availability } = req.body;
+    const { name, category,description, productType, price, availability } = req.body;
 
     const updated = await prisma.product.update({
       where: { id },
       data: {
         name,
         category,
+        description,
         productType,
         price: parseFloat(price),
         availability
