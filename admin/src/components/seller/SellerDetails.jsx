@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import React, { useEffect, useState, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import "./SellerDetails.css";
 import Sidebar from "../sidebar/Sidebar";
@@ -13,15 +15,17 @@ const SellerDetails = () => {
   const [products, setProducts] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
-  const [selectedGallery, setSelectedGallery] = useState(null); // Stores [img1, img2...]
+  const [selectedGallery, setSelectedGallery] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // Helper to fetch/refresh details
+  // --- SEARCH & FILTER STATES ---
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+
   const fetchDetails = () => {
     if (!sellerId) return;
     setLoading(true);
 
-    // Fetch both Seller Info and Seller Products
     Promise.all([
       fetch(`http://localhost:5000/admin/sellers/${sellerId}`).then(res => res.json()),
       fetch(`http://localhost:5000/admin/sellers/${sellerId}/products`).then(res => res.json())
@@ -41,6 +45,19 @@ const SellerDetails = () => {
     fetchDetails();
   }, [sellerId]);
 
+  // --- FILTER LOGIC ---
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const matchesSearch = (p.name || "").toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = categoryFilter === "" || p.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, searchTerm, categoryFilter]);
+
+  const uniqueCategories = useMemo(() => {
+    return [...new Set(products.map(p => p.category).filter(Boolean))];
+  }, [products]);
+
   const handleProductUpdate = (id) => {
     setUpdating(true);
     fetch(`http://localhost:5000/admin/products/${id}`, {
@@ -52,19 +69,16 @@ const SellerDetails = () => {
       .then((data) => {
         if (data.success) {
           setEditingId(null);
-          fetchDetails(); // Refresh list
+          fetchDetails();
         }
       })
       .catch((err) => alert("Update failed"))
       .finally(() => setUpdating(false));
   };
 
-  // Handler to toggle verification status
   const handleVerify = () => {
     if (!seller) return;
     setUpdating(true);
-
-    // Toggle logic: if true, set to false; if false, set to true
     const newStatus = !seller.isVerified;
 
     fetch(`http://localhost:5000/admin/sellers/${sellerId}/verify`, {
@@ -73,22 +87,13 @@ const SellerDetails = () => {
       body: JSON.stringify({ isVerified: newStatus }),
     })
       .then(async (res) => {
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText);
-        }
+        if (!res.ok) throw new Error("Verification failed");
         return res.json();
       })
       .then((data) => {
-        if (data.success) {
-          // Re-fetch to update the UI with new status and label
-          fetchDetails();
-        }
+        if (data.success) fetchDetails();
       })
-      .catch((err) => {
-        console.error("Verification error:", err);
-        alert("Action failed. Please check the backend connection.");
-      })
+      .catch((err) => alert("Action failed."))
       .finally(() => setUpdating(false));
   };
 
@@ -104,7 +109,7 @@ const SellerDetails = () => {
       <div className="seller-details-page">
         <div className="seller-header">
           <div className="header-info">
-            <h1>{business?.businessName || "Business details not provided"}</h1>
+            <h1>{business?.businessName || "Business Details"}</h1>
             <span className={`status ${seller.status.toLowerCase()}`}>
               {seller.status}
             </span>
@@ -120,7 +125,7 @@ const SellerDetails = () => {
         </div>
 
         <div className="details-grid">
-          {/* Seller Info Section */}
+          {/* Seller Info */}
           <section className="section">
             <h2>Seller Info</h2>
             <p><strong>Name:</strong> {sellerInfo?.name}</p>
@@ -129,7 +134,7 @@ const SellerDetails = () => {
             <p><strong>Joined:</strong> {new Date(sellerInfo?.createdAt).toDateString()}</p>
           </section>
 
-          {/* Business Details Section */}
+          {/* Business Details */}
           <section className="section">
             <h2>Business Details</h2>
             {business ? (
@@ -142,7 +147,7 @@ const SellerDetails = () => {
             ) : <p className="muted">Business details not provided</p>}
           </section>
 
-          {/* Bank Details Section */}
+          {/* Bank Details */}
           <section className="section bank-details-section">
             <h2>Bank Details</h2>
             {bank ? (
@@ -156,7 +161,7 @@ const SellerDetails = () => {
             ) : <p className="muted">Bank details not provided</p>}
           </section>
 
-          {/* Delivery Details Section */}
+          {/* RESTORED: Delivery Details Section */}
           <section className="section">
             <h2>Delivery</h2>
             {delivery ? (
@@ -170,7 +175,32 @@ const SellerDetails = () => {
         </div>
 
         <div className="seller-products-section" style={{ marginTop: '40px' }}>
-          <h2>Products Listed ({products.length})</h2>
+          <div className="products-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '15px' }}>
+            <h2>Products Listed ({filteredProducts.length})</h2>
+            
+            <div className="admin-filters-bar" style={{ display: 'flex', gap: '10px' }}>
+              <input 
+                type="text" 
+                placeholder="Search product name..." 
+                className="admin-search-input"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }}
+              />
+              <select 
+                className="admin-filter-select"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }}
+              >
+                <option value="">All Categories</option>
+                {uniqueCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           {products.length > 0 ? (
             <div className="admin-product-list">
               <table className="admin-table">
@@ -181,11 +211,11 @@ const SellerDetails = () => {
                     <th>Category</th>
                     <th>Description</th>
                     <th>Price</th>
-                    <th>Stock</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((p) => (
+                  {filteredProducts.map((p) => (
                     <tr key={p.id}>
                       <td>
                         <div className="admin-image-stack" onClick={() => {
@@ -219,7 +249,7 @@ const SellerDetails = () => {
                           >
                             <option value="Furniture">Furniture</option>
                             <option value="Plywood & Boards">Plywood & Boards</option>
-                            {/* Add other categories as needed */}
+                            <option value="Bathroom Fittings">Bathroom Fittings</option>
                           </select>
                         ) : p.category}
                       </td>
@@ -259,6 +289,7 @@ const SellerDetails = () => {
                   ))}
                 </tbody>
               </table>
+              {filteredProducts.length === 0 && <div className="no-results-msg" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No products match your filters.</div>}
             </div>
           ) : (
             <p className="muted">This seller hasn't listed any products yet.</p>

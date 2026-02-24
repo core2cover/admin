@@ -255,14 +255,6 @@
   }
 }
 
-.admin-product-list {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-top: 15px;
-}
-
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -318,8 +310,9 @@
   /* Removing padding to let table be full width */
   border-radius: 12px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow-x: auto;
   border: 1px solid #e5e7eb;
+  -webkit-overflow-scrolling: touch;
 }
 
 .admin-table {
@@ -521,4 +514,29 @@
 .gallery-item img:hover {
   transform: scale(1.05);
   border-color: #4e5a44;
+}
+
+.admin-description-cell {
+  max-width: 150px;
+  font-size: 0.85rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-edit-textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  resize: vertical;
+}
+
+/* Ensure the table doesn't get too cramped */
+.admin-table th, .admin-table td {
+  padding: 12px 8px;
 }
