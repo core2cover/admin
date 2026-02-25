@@ -10,7 +10,7 @@ const Sellers = () => {
   const [search, setSearch] = useState("");
   const [sellers, setSellers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(null); // Track which ID is being updated
+  const [actionLoading, setActionLoading] = useState(null);
 
   const fetchSellers = () => {
     fetch("http://localhost:5000/admin/sellers")
@@ -29,11 +29,8 @@ const Sellers = () => {
     fetchSellers();
   }, []);
 
-  // CORRECTED VERIFY HANDLER FOR LIST VIEW
   const handleVerifyToggle = (id, currentStatus) => {
-    setActionLoading(id); // Set loading for this specific row
-    
-    // If status is "VERIFIED", we want to set isVerified to false (revoke)
+    setActionLoading(id);
     const newStatus = currentStatus !== 'VERIFIED';
 
     fetch(`http://localhost:5000/admin/sellers/${id}/verify`, {
@@ -50,7 +47,6 @@ const Sellers = () => {
       })
       .then((data) => {
         if (data.success) {
-          // Update the specific seller in the list locally to reflect changes immediately
           setSellers((prev) =>
             prev.map((s) => (s.id === id ? { ...s, status: data.status } : s))
           );
@@ -68,6 +64,11 @@ const Sellers = () => {
       .toLowerCase()
       .includes(search.toLowerCase())
   );
+
+  // --- ANALYTICS CALCULATIONS ---
+  const totalSellers = sellers.length;
+  const verifiedSellers = sellers.filter(s => s.status === 'VERIFIED').length;
+  const pendingSellers = sellers.filter(s => s.status === 'PENDING').length;
 
   return (
     <>
@@ -88,6 +89,23 @@ const Sellers = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+
+        {/* --- ADDED STATS SECTION --- */}
+        <div className="sellers-stats">
+          <div className="stat_card">
+            <h3>Total Sellers</h3>
+            <span>{totalSellers}</span>
+          </div>
+          <div className="stat_card">
+            <h3>Verified Sellers</h3>
+            <span>{verifiedSellers}</span>
+          </div>
+          <div className="stat_card">
+            <h3>Pending Approval</h3>
+            <span>{pendingSellers}</span>
+          </div>
+        </div>
+        {/* -------------------------- */}
 
         {loading ? (
           <div className="loading-state">Loading sellers…</div>
