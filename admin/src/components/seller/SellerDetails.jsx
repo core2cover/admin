@@ -45,7 +45,27 @@ const SellerDetails = () => {
     fetchDetails();
   }, [sellerId]);
 
-  // --- FILTER LOGIC ---
+  // --- DELETE PRODUCT LOGIC ---
+  const handleDeleteProduct = (id) => {
+    if (!window.confirm("Are you sure you want to delete this product? This action cannot be undone.")) return;
+
+    setUpdating(true);
+    fetch(`http://localhost:5000/admin/products/${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Product deleted successfully");
+          fetchDetails(); // Refresh the list
+        } else {
+          alert("Failed to delete product");
+        }
+      })
+      .catch((err) => console.error("Delete error:", err))
+      .finally(() => setUpdating(false));
+  };
+
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       const matchesSearch = (p.name || "").toLowerCase().includes(searchTerm.toLowerCase());
@@ -125,7 +145,6 @@ const SellerDetails = () => {
         </div>
 
         <div className="details-grid">
-          {/* Seller Info */}
           <section className="section">
             <h2>Seller Info</h2>
             <p><strong>Name:</strong> {sellerInfo?.name}</p>
@@ -134,7 +153,6 @@ const SellerDetails = () => {
             <p><strong>Joined:</strong> {new Date(sellerInfo?.createdAt).toDateString()}</p>
           </section>
 
-          {/* Business Details */}
           <section className="section">
             <h2>Business Details</h2>
             {business ? (
@@ -147,7 +165,6 @@ const SellerDetails = () => {
             ) : <p className="muted">Business details not provided</p>}
           </section>
 
-          {/* Bank Details */}
           <section className="section bank-details-section">
             <h2>Bank Details</h2>
             {bank ? (
@@ -161,7 +178,6 @@ const SellerDetails = () => {
             ) : <p className="muted">Bank details not provided</p>}
           </section>
 
-          {/* RESTORED: Delivery Details Section */}
           <section className="section">
             <h2>Delivery</h2>
             {delivery ? (
@@ -276,20 +292,33 @@ const SellerDetails = () => {
                         ) : `₹${p.price}`}
                       </td>
                       <td>
-                        {editingId === p.id ? (
-                          <button className="btn-save" onClick={() => handleProductUpdate(p.id)}>Save</button>
-                        ) : (
-                          <button className="btn-edit" onClick={() => {
-                            setEditingId(p.id);
-                            setEditData({ name: p.name, category: p.category, description: p.description || "", price: p.price, productType: p.productType });
-                          }}>Edit</button>
-                        )}
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          {editingId === p.id ? (
+                            <>
+                              <button className="btn-save" onClick={() => handleProductUpdate(p.id)}>Save</button>
+                              <button className="btn-cancel" onClick={() => setEditingId(null)}>Cancel</button>
+                            </>
+                          ) : (
+                            <>
+                              <button className="btn-edit" onClick={() => {
+                                setEditingId(p.id);
+                                setEditData({ name: p.name, category: p.category, description: p.description || "", price: p.price, productType: p.productType });
+                              }}>Edit</button>
+                              <button 
+                                className="btn-delete" 
+                                onClick={() => handleDeleteProduct(p.id)}
+                                style={{ backgroundColor: '#ff4d4f', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              {filteredProducts.length === 0 && <div className="no-results-msg" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No products match your filters.</div>}
             </div>
           ) : (
             <p className="muted">This seller hasn't listed any products yet.</p>

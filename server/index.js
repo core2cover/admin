@@ -547,6 +547,25 @@ app.patch("/admin/products/:id", async (req, res) => {
   }
 });
 
+// DELETE PRODUCT (ADMIN)
+app.delete("/admin/products/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "Invalid product ID" });
+    }
+
+    await prisma.product.delete({
+      where: { id },
+    });
+
+    res.json({ success: true, message: "Product deleted successfully" });
+  } catch (err) {
+    console.error("DELETE PRODUCT ERROR:", err);
+    res.status(500).json({ error: "Failed to delete product" });
+  }
+});
+
 /* ======================
     VERIFY SELLER (ADMIN)
 ====================== */
