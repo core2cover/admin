@@ -332,3 +332,124 @@
 .main-order-row td:last-child {
   text-align: center;
 }
+
+.fee-header {
+  color: #e67e22;
+}
+
+.fee-highlight {
+  font-weight: bold;
+  color: #e67e22;
+}
+
+.total-highlight {
+  font-weight: bold;
+  color: #2c3e50;
+  font-size: 1.05rem;
+}
+
+.price-distribution-container {
+  background: #fcfcfc;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 20px;
+}
+
+.price-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.price-dist-card {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.price-dist-card label {
+  display: block;
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  letter-spacing: 0.5px;
+}
+
+.price-dist-card span {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.service-fee-box {
+  background-color: #fff9f1;
+  border-color: #ffd8a8;
+}
+
+.service-fee-box span {
+  color: #e67e22;
+}
+
+.grand-box {
+  background-color: #f1f8f1;
+  border-color: #b2d8b2;
+}
+
+.grand-box span {
+  color: #27ae60;
+}
+
+.inner-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.inner-items-table th {
+  text-align: left;
+  padding: 10px;
+  background: #f8f9fa;
+  border-bottom: 2px solid #eee;
+}
+
+.inner-items-table td {
+  padding: 10px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.item-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-cell img {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.shipping-address-bar {
+  margin-top: 15px;
+  padding: 12px;
+  background: #edf2f7;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.pay-method {
+  background: #3182ce;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
